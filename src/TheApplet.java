@@ -19,6 +19,10 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	//Fluid sim variables
 	private static ArrayList<Particle> parts;
 	private static final int GRAVITY = 1;
+	private static final float FRICTION = 1;
+	
+	//Used to make the applet run
+	private static Thread t = null;
 	
 	public void start() {
 		//Create the app window
@@ -31,12 +35,14 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		//My test case
 		tylerTest();
 		
-		Thread t = new Thread(this);
-		t.start();
+		//Create the Thread if it doesn't exist
+		if (t == null) {
+			t = new Thread(this);
+			t.start();
+		}
 	}
 	
 	public void paint(Graphics gg) {
-		System.out.println("Painting");
 		//Better graphics
 		Graphics2D g = (Graphics2D) gg;
 		
@@ -49,25 +55,65 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		for (Particle p : this.parts) {
 			p.draw(g);
 		}
+		g.drawString("Particles: " + parts.size(), 0, 12);
+	}
+	
+	public void update() {
+		//Move each particle
+		for (Particle p : this.parts) {
+			applyGravity(p);
+			updateVelocity(p);
+			applyVelocity(p);
+			checkBounds(p);
+		}
 	}
 	
 	public void applyGravity(Particle p) {
+		//Gravity is changed using the constant
 		p.vy += GRAVITY;
 	}
 	
+	public void updateVelocity(Particle p) {
+		//This is where the grid comes in
+	}
+	
 	public void applyVelocity(Particle p) {
+		//This shouldn't need to be touched
 		p.x += p.vx;
 		p.y += p.vy;
 	}
 	
+	public void checkBounds(Particle p) {
+		//check lower
+		if (p.y > HEIGHT) {
+			p.y = HEIGHT;
+			p.vy = -p.vy + FRICTION;
+		}
+		
+		//check upper
+		
+		//check right
+		
+		//check left
+	}
+	
 	public void run() {
-		repaint();
+		Thread myThread = Thread.currentThread();
+        while (t == myThread) {
+        	update();
+            repaint();
+            try {
+                Thread.sleep(333);
+            } catch (InterruptedException e) {
+            	e.printStackTrace();
+            }
+        }
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		Particle p = new Particle(e.getX(), e.getY(), 0, 0);
+		parts.add(p);
 	}
 
 	@Override
