@@ -18,7 +18,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	
 	//Fluid sim variables
 	private static ArrayList<Particle> parts;
-	private static final int GRAVITY = 1;
+	private static final float GRAVITY = .1f;
 	private static final float FRICTION = 1;
 	
 	//Used to make the applet run
@@ -103,7 +103,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
         	update();
             repaint();
             try {
-                Thread.sleep(333);
+                Thread.sleep(33);
             } catch (InterruptedException e) {
             	e.printStackTrace();
             }
