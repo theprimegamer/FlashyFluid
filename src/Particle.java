@@ -13,7 +13,7 @@ public class Particle {
 	public float vx, vy;	//Velocity
 	
 	//Constants
-	private static final int DIAMETER = 10;
+	public static final int DIAMETER = 4;
 		
 	public Particle(float x, float y, float vx, float vy) {
 		this.x = x;
@@ -23,6 +23,6 @@ public class Particle {
 	}
 	
 	public void draw(Graphics2D g) {
-		g.fillOval((int) (this.x - DIAMETER), (int) (this.y - DIAMETER), DIAMETER, DIAMETER);
+		g.fillOval((int) (this.x - DIAMETER/2), (int) (this.y - DIAMETER/2), DIAMETER, DIAMETER);
 	}
 }
