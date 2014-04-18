@@ -4,6 +4,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.swing.JApplet;
 
@@ -20,6 +22,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	
 	//Used to make the applet run
 	private static Thread t = null;
+	private static long prevTime = System.currentTimeMillis();
 	
 	//Grid Variables
 	private static float[][] values;
@@ -63,14 +66,17 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		//Marching Squares
 	}
 	
-	public void update() {
+	public void update(float dt) {
 		//Could merge these methods for better runtime.
 		//This is just to make sure the algorithms are correct
-		moveFluid();
-		calculateNewConvections();
+		//Adjust millisecs to secs
+		dt /= 1000;
+		System.out.println(dt);
+		moveFluid(dt);
+		calculateNewConvections(dt);
 	}
 	
-	public void moveFluid() {
+	public void moveFluid(float dt) {
 		//Checking the xMovements
 		for (int r = 0; r < xConvect.length; r++) {
 			for (int c = 0; c < xConvect[r].length; c++) {
@@ -134,17 +140,37 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		}
 	}
 	
-	public void calculateNewConvections() {
+	//Doing backward advection
+	public void calculateNewConvections(float dt) {
+		float[][] tempXCon = new float[xConvect.length][xConvect[0].length];
 		for (int r = 0; r < xConvect.length; r++) {
 			for (int c = 0; c < xConvect[r].length; c++) {
-				//End cases
-				if (c == 0) {
-
-				} else if (c == xConvect[r].length) {
-					
-				}
+				//find -dx
+				float prev = -xConvect[r][c]*dt;
+				//left xConvect
+				float left;
+				if (r + Math.floor(prev) >= 0 && r + Math.floor(prev) < xConvect[r].length)
+					left = xConvect[(int)(r + Math.floor(prev))][c];
+				//out of bounds.  Just make left number 0
+				else
+					left = 0;
+				
+				float right;
+				if (r + Math.ceil(prev) >= 0 && r + Math.ceil(prev) < xConvect[r].length)
+					right = xConvect[(int)(r + Math.ceil(prev))][c];
+				//out of bounds.  Just make left number 0
+				else
+					right = 0;
+				
+				//Find the distance the "particle" is from left and right
+				float ratio = (float)(prev - Math.floor(prev));
+				
+				float newCon = ratio*right + (1-ratio) * left;
+				tempXCon[r][c] = newCon;
+				//System.out.print(newCon);
 			}
 		}
+		//System.out.println();
 		
 		for (int r = 0; r < yConvect.length; r++) {
 			for (int c = 0; c < yConvect[r].length; c++) {
@@ -156,7 +182,9 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	public void run() {
 		Thread myThread = Thread.currentThread();
         while (t == myThread) {
-        	update();
+        	//Pass in delta time to the update function
+        	update(System.currentTimeMillis() - prevTime);
+        	prevTime = Calendar.getInstance().getTimeInMillis();
             repaint();
             try {
                 Thread.sleep(33);
