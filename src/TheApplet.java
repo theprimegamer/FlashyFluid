@@ -64,7 +64,8 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	}
 	
 	public void update() {
-		System.out.println("update");
+		//Could merge these methods for better runtime.
+		//This is just to make sure the algorithms are correct
 		moveFluid();
 		calculateNewConvections();
 	}
@@ -134,7 +135,22 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	}
 	
 	public void calculateNewConvections() {
+		for (int r = 0; r < xConvect.length; r++) {
+			for (int c = 0; c < xConvect[r].length; c++) {
+				//End cases
+				if (c == 0) {
+
+				} else if (c == xConvect[r].length) {
+					
+				}
+			}
+		}
 		
+		for (int r = 0; r < yConvect.length; r++) {
+			for (int c = 0; c < yConvect[r].length; c++) {
+				
+			}
+		}
 	}
 	
 	public void run() {
