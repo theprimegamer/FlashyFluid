@@ -17,8 +17,10 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	private static final int GRID_WIDTH = 100;
 	private static final int GRID_HEIGHT = 40;
 	private static final int GRID_UNIT = 8;
+	private static final int BUFFER_DEPTH = 5;
 	private static final int WIDTH = GRID_UNIT*GRID_WIDTH;
-	private static final int HEIGHT = GRID_UNIT*GRID_HEIGHT;
+	private static final int HEIGHT = GRID_UNIT*(GRID_HEIGHT + BUFFER_DEPTH);
+	private static final float GRAVITY = 1;
 	
 	//Used to make the applet run
 	private static Thread t = null;
@@ -50,9 +52,11 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		//Initialize the grid to have some fluid in it. (2000 units)
 		for (int r = 0; r < values.length; r++) {
 			for (int c = 0; c < values[r].length; c++) {
-				values[r][c] = 1;
+				if (r > 36)
+					values[r][c] = 1;
 			}
 		}
+		yConvect[36][12] = -20;
 	}
 	
 	public void paint(Graphics gg) {
@@ -63,6 +67,15 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		g.setBackground(Color.lightGray);
 		g.clearRect(0, 0, WIDTH, HEIGHT);
 		
+		g.setColor(Color.blue);
+		
+		for (int r = 0; r < values.length; r++) {
+			for (int c = 0; c < values[r].length; c++) {
+				if (values[r][c] > 0)
+					g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT);
+			}
+		}
+		g.fillRect(0, GRID_HEIGHT*GRID_UNIT, GRID_WIDTH*GRID_UNIT, GRID_UNIT*BUFFER_DEPTH);
 		//Marching Squares
 	}
 	
@@ -71,7 +84,6 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		//This is just to make sure the algorithms are correct
 		//Adjust millisecs to secs
 		dt /= 1000;
-		System.out.println(dt);
 		moveFluid(dt);
 		calculateNewConvections(dt);
 	}
@@ -143,7 +155,8 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	//Doing backward advection
 	public void calculateNewConvections(float dt) {
 		float[][] tempXCon = new float[xConvect.length][xConvect[0].length];
-		for (int r = 0; r < xConvect.length; r++) {
+		float[][] tempYCon = new float[yConvect.length][yConvect[0].length];
+		/*for (int r = 0; r < xConvect.length; r++) {
 			for (int c = 0; c < xConvect[r].length; c++) {
 				//find -dx
 				float prev = -xConvect[r][c]*dt;
@@ -176,7 +189,34 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 			for (int c = 0; c < yConvect[r].length; c++) {
 				
 			}
+		}*/
+		//Loop over X's (c is important)
+		for (int r = 0; r < xConvect.length; r++) {
+			for (int c = 0; c < xConvect[r].length; c++) {
+				float left = 0;
+				if (c > 0)
+					left = xConvect[r][c-1];
+				float right = 0;
+				if (c < xConvect[r].length-1)
+					right = xConvect[r][c+1];
+				tempXCon[r][c] = (left+right)/2.0f;
+			}
 		}
+		//Loop over Y's (r is important
+		for (int r = 0; r < yConvect.length; r++) {
+			for (int c = 0; c < yConvect[r].length; c++) {
+				float top = 0;
+				if (r > 0)
+					top = yConvect[r-1][c];
+				float bot = 0;
+				if (r < yConvect.length - 1)
+					bot = yConvect[r+1][c];
+				tempYCon[r][c] = (top+bot)/2.0f + GRAVITY*dt;
+			}
+		}
+		
+		xConvect = tempXCon.clone();
+		yConvect = tempYCon.clone();
 	}
 	
 	public void run() {
@@ -201,8 +241,10 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		System.out.println(e.getY());
+		System.out.println(e.getX());
+		int c = (int) Math.floor(e.getX()/GRID_UNIT);
+		yConvect[38][c] -= 20;
 	}
 
 	@Override
