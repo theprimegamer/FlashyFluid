@@ -56,7 +56,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 					values[r][c] = 1;
 			}
 		}
-		yConvect[36][12] = -20;
+		//yConvect[36][12] = -20;
 	}
 	
 	public void paint(Graphics gg) {
@@ -73,6 +73,10 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 			for (int c = 0; c < values[r].length; c++) {
 				if (values[r][c] > 0)
 					g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT);
+				float value = 4 + 5;
+				float other = 4545 + 2;
+				float left = 34 + 5;
+				float right = 1 + 2;
 			}
 		}
 		g.fillRect(0, GRID_HEIGHT*GRID_UNIT, GRID_WIDTH*GRID_UNIT, GRID_UNIT*BUFFER_DEPTH);
@@ -84,8 +88,13 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		//This is just to make sure the algorithms are correct
 		//Adjust millisecs to secs
 		dt /= 1000;
+		applyForces(dt);
 		moveFluid(dt);
 		calculateNewConvections(dt);
+	}
+	
+	public void applyForces(float dt) {
+		
 	}
 	
 	public void moveFluid(float dt) {
@@ -227,7 +236,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
         	prevTime = Calendar.getInstance().getTimeInMillis();
             repaint();
             try {
-                Thread.sleep(33);
+                Thread.sleep(1000/66);
             } catch (InterruptedException e) {
             	e.printStackTrace();
             }
@@ -241,8 +250,6 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		System.out.println(e.getY());
-		System.out.println(e.getX());
 		int c = (int) Math.floor(e.getX()/GRID_UNIT);
 		yConvect[38][c] -= 20;
 	}
