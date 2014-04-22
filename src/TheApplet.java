@@ -23,7 +23,6 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	private static final float GRAVITY = 1;
 	private static final float THRESHHOLD = 1;
 	private static final float SQRT_TWO = (float)Math.sqrt(2);
-	private static final float SQRT_FOUR = (float)Math.sqrt(4);
 	
 	//Used to make the applet run
 	private static Thread t = null;
@@ -111,9 +110,14 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 				if (corners[r][c] >= THRESHHOLD)
 					mask |= 0x8;
 				switch(mask) {
-					
+					//TODO - Brian
+					//Look on wikipedia for the marching squares cases
+					//Our numbers line up exactly (ie if mask == 1, then the image for 1 will be the one to draw)
+					//You may find my previous drawing method helpful (The one UNcommented at the bottom) to find the square in which you'll draw
+					//You'll need to draw triangles n stuff though.  In this case using GRID_UNIT/2 might be nice to find endpoints of triangles
 				}
-				System.out.println("Mask: " + mask);
+//				if (c == values.length - 1)
+//					System.out.println("Mask: " + mask);
 				
 			}
 		}
@@ -199,10 +203,6 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 			for (int c = 0; c < values[r].length; c++) {
 				if (values[r][c] > 0)
 					g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT);
-				float value = 4 + 5;
-				float other = 4545 + 2;
-				float left = 34 + 5;
-				float right = 1 + 2;
 			}
 		}
 		g.fillRect(0, GRID_HEIGHT*GRID_UNIT, GRID_WIDTH*GRID_UNIT, GRID_UNIT*BUFFER_DEPTH);
@@ -221,7 +221,11 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	}
 	
 	public void applyForces(float dt) {
-		
+		//TODO - Brian
+		//This is where you'll integrate the object that Monika and Rob are working on
+		//It'll take in a timestep (dt - maybe in millis) and return a force and frequency
+		//You'll just need to translate these two things into the yConvect matrix
+		//It'll probably be like yConvect[39][some_freq_transform] = -force*some_constant
 	}
 	
 	public void moveFluid(float dt) {
