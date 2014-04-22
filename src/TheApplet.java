@@ -21,6 +21,9 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	private static final int WIDTH = GRID_UNIT*GRID_WIDTH;
 	private static final int HEIGHT = GRID_UNIT*(GRID_HEIGHT + BUFFER_DEPTH);
 	private static final float GRAVITY = 1;
+	private static final float THRESHHOLD = 1;
+	private static final float SQRT_TWO = (float)Math.sqrt(2);
+	private static final float SQRT_FOUR = (float)Math.sqrt(4);
 	
 	//Used to make the applet run
 	private static Thread t = null;
@@ -69,6 +72,129 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		
 		g.setColor(Color.blue);
 		
+		corners = new float[GRID_HEIGHT+1][GRID_WIDTH+1];
+		
+		float leftMod = 1, rightMod = 1, topMod = 1, botMod = 1;
+		
+		for (int r = 0; r < values.length; r++) {
+			if (r == 0)
+				topMod *= SQRT_TWO;
+			if (r == values.length - 1)
+				botMod *= SQRT_TWO;
+			for (int c = 0; c < values.length; c++) {
+				if (c == 0)
+					leftMod *= SQRT_TWO;
+				if (c == values[r].length - 1)
+					rightMod *= SQRT_TWO;
+				float val = values[r][c];
+				corners[r][c] += .25f * val * botMod * leftMod;
+				corners[r+1][c] += .25f * val * topMod * leftMod;
+				corners[r][c+1] += .25f * val * botMod * rightMod;
+				corners[r+1][c+1] += .25f * val * topMod * rightMod;
+			}
+		}
+		
+		corners[0][0] *= 2;
+		corners[0][GRID_WIDTH] *= 2;
+		corners[GRID_HEIGHT][0] *= 2;
+		corners[GRID_HEIGHT][GRID_WIDTH] *= 2;
+		
+		for (int r = 0; r < values.length; r++) {
+			for (int c = 0; c < values.length; c++) {
+				int mask = 0x0;
+				if (corners[r+1][c] >= THRESHHOLD)
+					mask |= 0x1;
+				if (corners[r+1][c+1] >= THRESHHOLD)
+					mask |= 0x2;
+				if (corners[r][c+1] >= THRESHHOLD)
+					mask |= 0x4;
+				if (corners[r][c] >= THRESHHOLD)
+					mask |= 0x8;
+				switch(mask) {
+					
+				}
+				System.out.println("Mask: " + mask);
+				
+			}
+		}
+		
+		//Set the first row
+		/*for (int c = 0; c < corners[0].length; c++) {
+			//left edge case
+			if (c == 0)
+				corners[0][c] = values[0][0];
+			//normal case
+			else if (c < GRID_WIDTH)
+				corners[0][c] = .5f * values[0][c-1] + .5f * values[0][c];
+			//right edge case
+			else 
+				corners[0][c] = values[0][c-1];
+		}
+		
+		//We can now assume that every row we examine has the top corners already computed
+		for (int r = 0; r < values.length; r++) {
+			//every other row
+			if (r == values.length) {
+				for (int c = 0; c < values[r].length; c++) {
+					//Edge cases
+					if (c == 0) {
+						corners[r+1][c] = .5f * values[r][c] + .5f * values[r+1][c];
+						corners[r+1][c+1] = .25f * values[r][c] + .25f * values[r][c + 1] + .25f * values[r+1][c] + .25f * values[r+1][c + 1];
+					} else if (c == values[r].length - 1) {
+						corners[r+1][c] = .25f * values[r][c-1] + .25f * values[r][c] + .25f * values[r+1][c-1] + .25f * values[r+1][c];
+						corners[r+1][c+1] = .5f * values[r][c] + .5f * values[r+1][c];
+					//normals
+					} else {
+						corners[r+1][c] = .25f * values[r][c-1] + .25f * values[r][c] + .25f * values[r+1][c-1] + .25f * values[r+1][c];
+						corners[r+1][c+1] = .25f * values[r][c] + .25f * values[r][c + 1] + .25f * values[r+1][c] + .25f * values[r+1][c + 1];
+					}
+					//All the corners are found
+					int mask = 0x0;
+					if (corners[r+1][c] >= THRESHHOLD)
+						mask |= 0x1;
+					if (corners[r+1][c+1] >= THRESHHOLD)
+						mask |= 0x2;
+					if (corners[r][c+1] >= THRESHHOLD)
+						mask |= 0x4;
+					if (corners[r][c] >= THRESHHOLD)
+						mask |= 0x8;
+					switch(mask) {
+						
+					}
+					System.out.println();
+				}
+				
+			//last row
+			} else {
+				for (int c = 0; c < values[r].length; c++) {
+					//Edge cases
+					if (c == 0) {
+						corners[r+1][c] = values[r][c];
+						corners[r+1][c+1] = .5f * values[r][c] + .5f * values[r][c + 1];
+					} else if (c == values[r].length - 1) {
+						corners[r+1][c] = .5f * values[r][c-1] + .5f * values[r][c];
+						corners[r+1][c+1] = values[r][c];
+					//normals
+					} else {
+						corners[r+1][c] = .5f * values[r][c-1] + .5f * values[r][c];
+						corners[r+1][c+1] = .5f * values[r][c] + .5f * values[r][c+1];
+					}
+					//All the corners are found
+					int mask = 0x0;
+					if (corners[r+1][c] >= THRESHHOLD)
+						mask |= 0x1;
+					if (corners[r+1][c+1] >= THRESHHOLD)
+						mask |= 0x2;
+					if (corners[r][c+1] >= THRESHHOLD)
+						mask |= 0x4;
+					if (corners[r][c] >= THRESHHOLD)
+						mask |= 0X8;
+					switch(mask) {
+						
+					}
+				}
+			}
+		}*/
 		for (int r = 0; r < values.length; r++) {
 			for (int c = 0; c < values[r].length; c++) {
 				if (values[r][c] > 0)
@@ -87,6 +213,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		//Could merge these methods for better runtime.
 		//This is just to make sure the algorithms are correct
 		//Adjust millisecs to secs
+		System.out.println(dt);
 		dt /= 1000;
 		applyForces(dt);
 		moveFluid(dt);
@@ -236,7 +363,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
         	prevTime = Calendar.getInstance().getTimeInMillis();
             repaint();
             try {
-                Thread.sleep(1000/66);
+                Thread.sleep(1000/64);
             } catch (InterruptedException e) {
             	e.printStackTrace();
             }
@@ -251,7 +378,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	@Override
 	public void mousePressed(MouseEvent e) {
 		int c = (int) Math.floor(e.getX()/GRID_UNIT);
-		yConvect[38][c] -= 20;
+		yConvect[38][c] -= 20;	
 	}
 
 	@Override
