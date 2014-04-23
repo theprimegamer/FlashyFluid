@@ -58,7 +58,6 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		//Initialize the grid to have some fluid in it. (2000 units)
 		for (int r = 0; r < values.length; r++) {
 			for (int c = 0; c < values[r].length; c++) {
-				if (r > 36)
 					values[r][c] = 1;
 			}
 		}
@@ -87,7 +86,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 			if (r == values.length - 1)
 				botMod *= SQRT_TWO;
 			float leftMod = 1, rightMod = 1;
-			for (int c = 0; c < values.length; c++) {
+			for (int c = 0; c < values[r].length; c++) {
 				if (c == 0)
 					leftMod *= SQRT_TWO;
 				if (c == values[r].length - 1)
@@ -106,7 +105,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		corners[GRID_HEIGHT][GRID_WIDTH] *= 2;
 		
 		for (int r = 0; r < values.length; r++) {
-			for (int c = 0; c < values.length; c++) {
+			for (int c = 0; c < values[r].length; c++) {
 
 				int mask = 0x0;
 				float bottomLeft = corners[r+1][c];
@@ -128,35 +127,36 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 					//You may find my previous drawing method helpful (The one UNcommented at the bottom) to find the square in which you'll draw
 					//You'll need to draw triangles n stuff though.  In this case using GRID_UNIT/2 might be nice to find endpoints of triangles
 
-					case 1:			// Correct drawing, but wrong position on update
-						// g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-						g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
-						break;
+					// case 1:			// Correct drawing, but wrong position on update
+					// 	// g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	break;
 
-					case 2:
-						g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-						break;
+					// case 2:
+					// 	// g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	break;
 
-					case 3:			// Correct drawing, wrong position
-						g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT, GRID_UNIT/2);
-						break;
+					// case 3:			// Correct drawing, wrong position
+					// 	g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT, GRID_UNIT/2);
+					// 	break;
 
-					case 4:
-						g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
-						break;
+					// case 4:
+					// 	g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
+					// 	break;
 
-					case 5:			// Ambiguous
-						float cornersAverageCase5 = (topLeft + topRight + bottomRight + bottomLeft)/4.0f;
-						if (cornersAverageCase5 >= THRESHHOLD) {
-							g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
-							g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
-							g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-						} else {	// Case 10
-							g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
-							g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
-							g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-						}
-						break;
+					// case 5:			// Ambiguous
+					// 	float cornersAverageCase5 = (topLeft + topRight + bottomRight + bottomLeft)/4.0f;
+					// 	if (cornersAverageCase5 >= THRESHHOLD) {
+					// 		g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	} else {	// Case 10
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
+					// 		g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	}
+					// 	break;
 
 					case 6:
 						g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
@@ -172,22 +172,22 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 						break;
 
 					case 9:			// !!! Doesn't draw next to full water block, instread draws next to case 6. Something isn't working.
-						//g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
-						g.fillRect(c*GRID_UNIT + GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
+						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
+						//g.fillRect(c*GRID_UNIT + GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
 						break;
 
-					case 10: 		// Ambiguous
-						float cornersAverageCase10 = (topLeft + topRight + bottomRight + bottomLeft)/4.0f;
-						if (cornersAverageCase10 >= THRESHHOLD) {
-							g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
-							g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
-							g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-						} else {	// Case 5
-							g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
-							g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
-							g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-						}
-						break;
+					// case 10: 		// Ambiguous
+					// 	float cornersAverageCase10 = (topLeft + topRight + bottomRight + bottomLeft)/4.0f;
+					// 	if (cornersAverageCase10 >= THRESHHOLD) {
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
+					// 		g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	} else {	// Case 5
+					// 		g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	}
+					// 	break;
 
 					case 11:		// Sometimes in wrong position
 						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
@@ -483,7 +483,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	@Override
 	public void mousePressed(MouseEvent e) {
 		int c = (int) Math.floor(e.getX()/GRID_UNIT);
-		yConvect[38][c] -= 20;	
+		yConvect[38][c] -= 80;	
 	}
 
 	@Override
