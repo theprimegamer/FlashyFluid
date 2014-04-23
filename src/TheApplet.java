@@ -24,7 +24,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	private static final int HEIGHT = GRID_UNIT*(GRID_HEIGHT + BUFFER_DEPTH);
 	private static final float GRAVITY = 1;
 	private static final float THRESHHOLD = 1;
-	private static final float MAX_FORCE = -1;
+	private static final float MAX_FORCE = -100;
 	private static final float SQRT_TWO = (float)Math.sqrt(2);
 	
 	private static final String TEST_AUDIO_FILE = "jump.wav";
@@ -34,10 +34,10 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	private static long prevTime = System.currentTimeMillis();
 	
 	//Grid Variables
-	private static float[][] values;
-	private static float[][] xConvect;
-	private static float[][] yConvect;
-	private static float[][] corners;
+	private float[][] values;
+	private float[][] xConvect;
+	private float[][] yConvect;
+	private float[][] corners;
 
 	private TheAudio audio;
 	
@@ -68,7 +68,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 
 		System.out.println("debug");
 		try {
-			audio = new TheAudio("Girl.wav");
+			audio = new TheAudio("AT&T.wav");
 		} catch (UnsupportedAudioFileException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -76,6 +76,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		audio.skip(1000000);
 	}
 	
 	public void paint(Graphics gg) {
@@ -299,7 +300,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		// 	}
 		// }
 
-		g.fillRect(0, GRID_HEIGHT*GRID_UNIT, GRID_WIDTH*GRID_UNIT, GRID_UNIT*BUFFER_DEPTH);
+		//g.fillRect(0, GRID_HEIGHT*GRID_UNIT, GRID_WIDTH*GRID_UNIT, GRID_UNIT*BUFFER_DEPTH);
 		//Marching Squares
 	}
 	
@@ -328,7 +329,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 			e.printStackTrace();
 		}
 		for (int i = 0; i < forces.length; i++) {
-			yConvect[38][i] = (float)(-forces[i]*MAX_FORCE)*dt;
+			yConvect[yConvect.length-1][i] = (float)(forces[i]*MAX_FORCE);
 		}
 		//System.out.println(forces[0]);
 	}
@@ -487,7 +488,9 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	@Override
 	public void mousePressed(MouseEvent e) {
 		int c = (int) Math.floor(e.getX()/GRID_UNIT);
+		System.out.println(yConvect[38][c]);
 		yConvect[38][c] -= 80;	
+		System.out.println(yConvect[38][c]);
 	}
 
 	@Override

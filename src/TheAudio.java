@@ -14,7 +14,7 @@ public class TheAudio {
 	protected AudioInputStream theStream;
 	protected int sampleCt, bytesPerFrame, sampleRate;
 	public TheAudio(String file) throws UnsupportedAudioFileException, IOException{
-		File fileIn = new File("/Users/tyler/Documents/JUNO/FlashyFluids/Girl.wav");
+		File fileIn = new File("AT&T.wav");
 		this.theStream = AudioSystem.getAudioInputStream(fileIn);
 		this.sampleCt = 0;
 		this.bytesPerFrame = this.theStream.getFormat().getSampleSizeInBits()/4;
@@ -77,12 +77,14 @@ public class TheAudio {
 				ct++;
 			}
 			out[i] = sum/(double)ct;
+			if (i == 0)
+				out[i] /= 10;
 			currIndex += binIncrement;
 			if (out[i] > maxBin)
 				maxBin = out[i];
 		}
 		for (int i = 0; i < out.length; i++){
-			out[i] = sMult*out[i]/maxBin;
+			out[i] = out[i]/maxBin;
 		}
 		return out;
 	}
