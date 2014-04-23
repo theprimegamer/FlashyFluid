@@ -14,7 +14,7 @@ public class TheAudio {
 	protected AudioInputStream theStream;
 	protected int sampleCt, bytesPerFrame, sampleRate;
 	public TheAudio(String file) throws UnsupportedAudioFileException, IOException{
-		File fileIn = new File(file);
+		File fileIn = new File("/Users/tyler/Documents/JUNO/FlashyFluids/Girl.wav");
 		this.theStream = AudioSystem.getAudioInputStream(fileIn);
 		this.sampleCt = 0;
 		this.bytesPerFrame = this.theStream.getFormat().getSampleSizeInBits()/4;

@@ -4,9 +4,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JApplet;
 
 public class TheApplet extends JApplet implements MouseListener, Runnable {
@@ -20,8 +22,9 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	private static final int BUFFER_DEPTH = 5;
 	private static final int WIDTH = GRID_UNIT*GRID_WIDTH;
 	private static final int HEIGHT = GRID_UNIT*(GRID_HEIGHT + BUFFER_DEPTH);
-	private static final float GRAVITY = 1;
+	private static final float GRAVITY = 50;
 	private static final float THRESHHOLD = 1;
+	private static final float MAX_FORCE = -1;
 	private static final float SQRT_TWO = (float)Math.sqrt(2);
 	
 	private static final String TEST_AUDIO_FILE = "jump.wav";
@@ -36,7 +39,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	private static float[][] yConvect;
 	private static float[][] corners;
 
-	private static TheAudio audio;
+	private TheAudio audio;
 	
 	public void start() {
 		//Create the app window
@@ -63,7 +66,16 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		}
 		//yConvect[36][12] = -20;
 
-		//audio = new TheAudio(TEST_AUDIO_FILE);
+		System.out.println("debug");
+		try {
+			audio = new TheAudio("Girl.wav");
+		} catch (UnsupportedAudioFileException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void paint(Graphics gg) {
@@ -313,7 +325,8 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		//Adjust millisecs to secs
 		//System.out.println(dt);
 		dt /= 1000;
-		applyForces(dt);
+		if (audio != null)
+			applyForces(dt);
 		moveFluid(dt);
 		calculateNewConvections(dt);
 	}
@@ -324,8 +337,15 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		//It'll take in a timestep (dt - maybe in millis) and return a force and frequency
 		//You'll just need to translate these two things into the yConvect matrix
 		//It'll probably be like yConvect[39][some_freq_transform] = -force*some_constant
-
-		//double[] forces = audio.getForces(2, 127);
+		double[] forces = null;
+		try {
+			forces = audio.getForces(100, (int)(dt*1000));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		for (int i = 0; i < forces.length; i++) {
+			yConvect[38][i] = (float)(-forces[i]*MAX_FORCE)*dt;
+		}
 		//System.out.println(forces[0]);
 	}
 	
