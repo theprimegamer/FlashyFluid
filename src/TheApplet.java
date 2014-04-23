@@ -24,6 +24,8 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	private static final float THRESHHOLD = 1;
 	private static final float SQRT_TWO = (float)Math.sqrt(2);
 	
+	private static final String TEST_AUDIO_FILE = "jump.wav";
+
 	//Used to make the applet run
 	private static Thread t = null;
 	private static long prevTime = System.currentTimeMillis();
@@ -33,6 +35,8 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	private static float[][] xConvect;
 	private static float[][] yConvect;
 	private static float[][] corners;
+
+	private static TheAudio audio;
 	
 	public void start() {
 		//Create the app window
@@ -54,11 +58,12 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		//Initialize the grid to have some fluid in it. (2000 units)
 		for (int r = 0; r < values.length; r++) {
 			for (int c = 0; c < values[r].length; c++) {
-				if (r > 36)
 					values[r][c] = 1;
 			}
 		}
 		//yConvect[36][12] = -20;
+
+		//audio = new TheAudio(TEST_AUDIO_FILE);
 	}
 	
 	public void paint(Graphics gg) {
@@ -73,14 +78,15 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		
 		corners = new float[GRID_HEIGHT+1][GRID_WIDTH+1];
 		
-		float leftMod = 1, rightMod = 1, topMod = 1, botMod = 1;
+		float topMod = 1, botMod = 1;
 		
 		for (int r = 0; r < values.length; r++) {
 			if (r == 0)
 				topMod *= SQRT_TWO;
 			if (r == values.length - 1)
 				botMod *= SQRT_TWO;
-			for (int c = 0; c < values.length; c++) {
+			float leftMod = 1, rightMod = 1;
+			for (int c = 0; c < values[r].length; c++) {
 				if (c == 0)
 					leftMod *= SQRT_TWO;
 				if (c == values[r].length - 1)
@@ -99,26 +105,116 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		corners[GRID_HEIGHT][GRID_WIDTH] *= 2;
 		
 		for (int r = 0; r < values.length; r++) {
-			for (int c = 0; c < values.length; c++) {
+			for (int c = 0; c < values[r].length; c++) {
+
 				int mask = 0x0;
-				if (corners[r+1][c] >= THRESHHOLD)
-					mask |= 0x1;
-				if (corners[r+1][c+1] >= THRESHHOLD)
-					mask |= 0x2;
-				if (corners[r][c+1] >= THRESHHOLD)
-					mask |= 0x4;
-				if (corners[r][c] >= THRESHHOLD)
-					mask |= 0x8;
+				float bottomLeft = corners[r+1][c];
+				float bottomRight = corners[r+1][c+1];
+				float topRight = corners[r][c+1];
+				float topLeft = corners[r][c];
+				if ( bottomLeft >= THRESHHOLD)
+					mask |= 0x1;	// 0001
+				if ( bottomRight >= THRESHHOLD)
+					mask |= 0x2;	// 0010
+				if ( topRight >= THRESHHOLD)
+					mask |= 0x4;	// 0100
+				if ( topLeft >= THRESHHOLD)
+					mask |= 0x8;	// 1000
 				switch(mask) {
 					//TODO - Brian
 					//Look on wikipedia for the marching squares cases
 					//Our numbers line up exactly (ie if mask == 1, then the image for 1 will be the one to draw)
 					//You may find my previous drawing method helpful (The one UNcommented at the bottom) to find the square in which you'll draw
 					//You'll need to draw triangles n stuff though.  In this case using GRID_UNIT/2 might be nice to find endpoints of triangles
+
+					// case 1:			// Correct drawing, but wrong position on update
+					// 	// g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	break;
+
+					// case 2:
+					// 	// g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	break;
+
+					// case 3:			// Correct drawing, wrong position
+					// 	g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT, GRID_UNIT/2);
+					// 	break;
+
+					// case 4:
+					// 	g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
+					// 	break;
+
+					// case 5:			// Ambiguous
+					// 	float cornersAverageCase5 = (topLeft + topRight + bottomRight + bottomLeft)/4.0f;
+					// 	if (cornersAverageCase5 >= THRESHHOLD) {
+					// 		g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	} else {	// Case 10
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
+					// 		g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	}
+					// 	break;
+
+					case 6:
+						g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
+						break;
+
+					case 7:
+						g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
+						g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+						break;
+
+					case 8:			// Sometimes in wrong position
+						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
+						break;
+
+					case 9:			// !!! Doesn't draw next to full water block, instread draws next to case 6. Something isn't working.
+						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
+						//g.fillRect(c*GRID_UNIT + GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
+						break;
+
+					// case 10: 		// Ambiguous
+					// 	float cornersAverageCase10 = (topLeft + topRight + bottomRight + bottomLeft)/4.0f;
+					// 	if (cornersAverageCase10 >= THRESHHOLD) {
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
+					// 		g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	} else {	// Case 5
+					// 		g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
+					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					// 	}
+					// 	break;
+
+					case 11:		// Sometimes in wrong position
+						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
+						g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+						break;
+
+					case 12:
+						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT/2);
+						break;
+
+					case 13:		// Correct drawing, wrong position
+						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT/2);
+						g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+						break;
+
+					case 14:
+						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT/2);
+						g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+						break;
+
+					case 15:
+						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT);
+						break;
+
+					default:
+						break;
 				}
-//				if (c == values.length - 1)
-//					System.out.println("Mask: " + mask);
-				
 			}
 		}
 		
@@ -199,12 +295,14 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 				}
 			}
 		}*/
-		for (int r = 0; r < values.length; r++) {
-			for (int c = 0; c < values[r].length; c++) {
-				if (values[r][c] > 0)
-					g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT);
-			}
-		}
+
+		// for (int r = 0; r < values.length; r++) {
+		// 	for (int c = 0; c < values[r].length; c++) {
+		// 		if (values[r][c] > 0)
+		// 			g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT);
+		// 	}
+		// }
+
 		g.fillRect(0, GRID_HEIGHT*GRID_UNIT, GRID_WIDTH*GRID_UNIT, GRID_UNIT*BUFFER_DEPTH);
 		//Marching Squares
 	}
@@ -213,7 +311,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		//Could merge these methods for better runtime.
 		//This is just to make sure the algorithms are correct
 		//Adjust millisecs to secs
-		System.out.println(dt);
+		//System.out.println(dt);
 		dt /= 1000;
 		applyForces(dt);
 		moveFluid(dt);
@@ -226,6 +324,9 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		//It'll take in a timestep (dt - maybe in millis) and return a force and frequency
 		//You'll just need to translate these two things into the yConvect matrix
 		//It'll probably be like yConvect[39][some_freq_transform] = -force*some_constant
+
+		//double[] forces = audio.getForces(2, 127);
+		//System.out.println(forces[0]);
 	}
 	
 	public void moveFluid(float dt) {
@@ -382,7 +483,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	@Override
 	public void mousePressed(MouseEvent e) {
 		int c = (int) Math.floor(e.getX()/GRID_UNIT);
-		yConvect[38][c] -= 20;	
+		yConvect[38][c] -= 80;	
 	}
 
 	@Override
