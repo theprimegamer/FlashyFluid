@@ -22,7 +22,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	private static final int BUFFER_DEPTH = 5;
 	private static final int WIDTH = GRID_UNIT*GRID_WIDTH;
 	private static final int HEIGHT = GRID_UNIT*(GRID_HEIGHT + BUFFER_DEPTH);
-	private static final float GRAVITY = 50;
+	private static final float GRAVITY = 1;
 	private static final float THRESHHOLD = 1;
 	private static final float MAX_FORCE = -1;
 	private static final float SQRT_TWO = (float)Math.sqrt(2);
@@ -133,29 +133,21 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 				if ( topLeft >= THRESHHOLD)
 					mask |= 0x8;	// 1000
 				switch(mask) {
-					//TODO - Brian
-					//Look on wikipedia for the marching squares cases
-					//Our numbers line up exactly (ie if mask == 1, then the image for 1 will be the one to draw)
-					//You may find my previous drawing method helpful (The one UNcommented at the bottom) to find the square in which you'll draw
-					//You'll need to draw triangles n stuff though.  In this case using GRID_UNIT/2 might be nice to find endpoints of triangles
+					case 1:
+						g.fillPolygon(new int[]{c*GRID_UNIT, c*GRID_UNIT, c*GRID_UNIT+GRID_UNIT/2 }, new int[]{r*GRID_UNIT+GRID_UNIT/2, r*GRID_UNIT+GRID_UNIT, r*GRID_UNIT+GRID_UNIT}, 3);
+						break;
 
-					// case 1:			// Correct drawing, but wrong position on update
-					// 	// g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-					// 	g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-					// 	break;
+					case 2:
+						g.fillPolygon(new int[]{c*GRID_UNIT + GRID_UNIT, c*GRID_UNIT + GRID_UNIT, c*GRID_UNIT+GRID_UNIT/2 }, new int[]{r*GRID_UNIT+GRID_UNIT/2, r*GRID_UNIT+GRID_UNIT, r*GRID_UNIT+GRID_UNIT}, 3);
+						break;
 
-					// case 2:
-					// 	// g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-					// 	g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-					// 	break;
+					case 3:
+						g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT, GRID_UNIT/2);
+						break;
 
-					// case 3:			// Correct drawing, wrong position
-					// 	g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT, GRID_UNIT/2);
-					// 	break;
-
-					// case 4:
-					// 	g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
-					// 	break;
+					case 4:
+						g.fillPolygon(new int[]{c*GRID_UNIT + GRID_UNIT/2, c*GRID_UNIT + GRID_UNIT, c*GRID_UNIT + GRID_UNIT }, new int[]{r*GRID_UNIT, r*GRID_UNIT, r*GRID_UNIT+GRID_UNIT/2}, 3);
+						break;
 
 					// case 5:			// Ambiguous
 					// 	float cornersAverageCase5 = (topLeft + topRight + bottomRight + bottomLeft)/4.0f;
@@ -175,17 +167,15 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 						break;
 
 					case 7:
-						g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
-						g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+						g.fillPolygon(new int[]{c*GRID_UNIT, c*GRID_UNIT, c*GRID_UNIT+GRID_UNIT, c*GRID_UNIT+GRID_UNIT, c*GRID_UNIT+GRID_UNIT/2 }, new int[]{r*GRID_UNIT+GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT, r*GRID_UNIT }, 5);
 						break;
 
-					case 8:			// Sometimes in wrong position
-						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
+					case 8:	
+						g.fillPolygon(new int[]{c*GRID_UNIT, c*GRID_UNIT, c*GRID_UNIT + GRID_UNIT/2 }, new int[]{r*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT}, 3);
 						break;
 
-					case 9:			// !!! Doesn't draw next to full water block, instread draws next to case 6. Something isn't working.
+					case 9:	
 						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
-						//g.fillRect(c*GRID_UNIT + GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
 						break;
 
 					// case 10: 		// Ambiguous
@@ -201,30 +191,24 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 					// 	}
 					// 	break;
 
-					case 11:		// Sometimes in wrong position
-						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
-						g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					case 11:
+						g.fillPolygon(new int[]{c*GRID_UNIT, c*GRID_UNIT, c*GRID_UNIT+GRID_UNIT, c*GRID_UNIT+GRID_UNIT, c*GRID_UNIT+GRID_UNIT/2 }, new int[]{r*GRID_UNIT, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT }, 5);
 						break;
 
 					case 12:
 						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT/2);
 						break;
 
-					case 13:		// Correct drawing, wrong position
-						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT/2);
-						g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+					case 13:
+						g.fillPolygon(new int[]{c*GRID_UNIT, c*GRID_UNIT, c*GRID_UNIT+GRID_UNIT/2, c*GRID_UNIT+GRID_UNIT, c*GRID_UNIT+GRID_UNIT }, new int[]{r*GRID_UNIT, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT }, 5);
 						break;
 
 					case 14:
-						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT/2);
-						g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
+						g.fillPolygon(new int[]{c*GRID_UNIT, c*GRID_UNIT, c*GRID_UNIT+GRID_UNIT/2, c*GRID_UNIT+GRID_UNIT, c*GRID_UNIT+GRID_UNIT }, new int[]{r*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT }, 5);
 						break;
 
 					case 15:
 						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT);
-						break;
-
-					default:
 						break;
 				}
 			}
