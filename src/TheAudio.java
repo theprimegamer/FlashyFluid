@@ -66,20 +66,26 @@ public class TheAudio {
 		// At this point, magz = magnitude of that power map thing... condense it down to width # of bins
 		// Magz may need to be fukkt wit
 		double[] out = new double[width];
-		double binIncrement = magz.length/width;
-		double currIndex = 0;
+		int numMagbin = magz.length/2;
+		double binIncrement = (Math.log10(22000)-Math.log10(100))/(double)width;
+		double currIndex = 1;
+		double currLog = Math.log10(100);
 		double maxBin = 0;
 		for (int i = 0; i < out.length; i++){
 			double sum = 0;
 			int ct = 0;
-			for (int j = (int)currIndex; j < currIndex + binIncrement; j++){
+			for (int j = (int)currIndex; Math.log10(j*22000/numMagbin) < currLog; j++){
+				if (j == 1){
+					sum += magz[j];
+					currIndex = 0;
+					ct++;
+				}
 				sum += magz[j];
 				ct++;
 			}
 			out[i] = sum/(double)ct;
-			if (i == 0)
-				out[i] /= 10;
-			currIndex += binIncrement;
+			currIndex += ct;
+			currLog += binIncrement;
 			if (out[i] > maxBin)
 				maxBin = out[i];
 		}

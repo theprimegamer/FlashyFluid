@@ -237,7 +237,7 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	public void applyForces(float dt) {
 		double[] forces = null;
 		try {
-			forces = audio.getForces(100, (int)(dt*1000));
+			forces = audio.getForces(100, (int)(dt));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
