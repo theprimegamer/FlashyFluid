@@ -33,6 +33,8 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	//Used to make the applet run
 	private static Thread t = null;
 	private static long prevTime = System.currentTimeMillis();
+	private float timeSinceLastAudioUpdate = 1000;
+	private final float AUDIO_UPDATE_INTERVAL = 500;
 	
 	//Grid Variables
 	private float[][] values;
@@ -212,91 +214,6 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 			}
 		}
 		
-		//Set the first row
-		/*for (int c = 0; c < corners[0].length; c++) {
-			//left edge case
-			if (c == 0)
-				corners[0][c] = values[0][0];
-			//normal case
-			else if (c < GRID_WIDTH)
-				corners[0][c] = .5f * values[0][c-1] + .5f * values[0][c];
-			//right edge case
-			else 
-				corners[0][c] = values[0][c-1];
-		}
-		
-		//We can now assume that every row we examine has the top corners already computed
-		for (int r = 0; r < values.length; r++) {
-			//every other row
-			if (r == values.length) {
-				for (int c = 0; c < values[r].length; c++) {
-					//Edge cases
-					if (c == 0) {
-						corners[r+1][c] = .5f * values[r][c] + .5f * values[r+1][c];
-						corners[r+1][c+1] = .25f * values[r][c] + .25f * values[r][c + 1] + .25f * values[r+1][c] + .25f * values[r+1][c + 1];
-					} else if (c == values[r].length - 1) {
-						corners[r+1][c] = .25f * values[r][c-1] + .25f * values[r][c] + .25f * values[r+1][c-1] + .25f * values[r+1][c];
-						corners[r+1][c+1] = .5f * values[r][c] + .5f * values[r+1][c];
-					//normals
-					} else {
-						corners[r+1][c] = .25f * values[r][c-1] + .25f * values[r][c] + .25f * values[r+1][c-1] + .25f * values[r+1][c];
-						corners[r+1][c+1] = .25f * values[r][c] + .25f * values[r][c + 1] + .25f * values[r+1][c] + .25f * values[r+1][c + 1];
-					}
-					//All the corners are found
-					int mask = 0x0;
-					if (corners[r+1][c] >= THRESHHOLD)
-						mask |= 0x1;
-					if (corners[r+1][c+1] >= THRESHHOLD)
-						mask |= 0x2;
-					if (corners[r][c+1] >= THRESHHOLD)
-						mask |= 0x4;
-					if (corners[r][c] >= THRESHHOLD)
-						mask |= 0x8;
-					switch(mask) {
-						
-					}
-					System.out.println();
-				}
-				
-			//last row
-			} else {
-				for (int c = 0; c < values[r].length; c++) {
-					//Edge cases
-					if (c == 0) {
-						corners[r+1][c] = values[r][c];
-						corners[r+1][c+1] = .5f * values[r][c] + .5f * values[r][c + 1];
-					} else if (c == values[r].length - 1) {
-						corners[r+1][c] = .5f * values[r][c-1] + .5f * values[r][c];
-						corners[r+1][c+1] = values[r][c];
-					//normals
-					} else {
-						corners[r+1][c] = .5f * values[r][c-1] + .5f * values[r][c];
-						corners[r+1][c+1] = .5f * values[r][c] + .5f * values[r][c+1];
-					}
-					//All the corners are found
-					int mask = 0x0;
-					if (corners[r+1][c] >= THRESHHOLD)
-						mask |= 0x1;
-					if (corners[r+1][c+1] >= THRESHHOLD)
-						mask |= 0x2;
-					if (corners[r][c+1] >= THRESHHOLD)
-						mask |= 0x4;
-					if (corners[r][c] >= THRESHHOLD)
-						mask |= 0X8;
-					switch(mask) {
-						
-					}
-				}
-			}
-		}*/
-
-		// for (int r = 0; r < values.length; r++) {
-		// 	for (int c = 0; c < values[r].length; c++) {
-		// 		if (values[r][c] > 0)
-		// 			g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT, GRID_UNIT);
-		// 	}
-		// }
-
 		g.fillRect(0, GRID_HEIGHT*GRID_UNIT, GRID_WIDTH*GRID_UNIT, GRID_UNIT*BUFFER_DEPTH);
 		//Marching Squares
 
@@ -304,23 +221,20 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	}
 	
 	public void update(float dt) {
-		//Could merge these methods for better runtime.
-		//This is just to make sure the algorithms are correct
-		//Adjust millisecs to secs
-		//System.out.println(dt);
+		//dt in millis
+		timeSinceLastAudioUpdate += dt;
+		if (audio != null && timeSinceLastAudioUpdate > AUDIO_UPDATE_INTERVAL) {
+			applyForces(timeSinceLastAudioUpdate);
+			timeSinceLastAudioUpdate = 0;
+		}
+		//dt in seconds
 		dt /= 1000;
-		if (audio != null)
-			applyForces(dt);
 		moveFluid(dt);
 		calculateNewConvections(dt);
 	}
 	
+	//dt in millis
 	public void applyForces(float dt) {
-		//TODO - Brian
-		//This is where you'll integrate the object that Monika and Rob are working on
-		//It'll take in a timestep (dt - maybe in millis) and return a force and frequency
-		//You'll just need to translate these two things into the yConvect matrix
-		//It'll probably be like yConvect[39][some_freq_transform] = -force*some_constant
 		double[] forces = null;
 		try {
 			forces = audio.getForces(100, (int)(dt*1000));
