@@ -7,6 +7,7 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.awt.Image;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JApplet;
@@ -40,6 +41,9 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 	private float[][] corners;
 
 	private TheAudio audio;
+	
+	private Graphics bufferGraphics;
+	private Image offscreen;
 	
 	public void start() {
 		//Create the app window
@@ -77,11 +81,14 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 			e.printStackTrace();
 		}
 		audio.skip(1000000);
+		
+		offscreen = createImage(WIDTH, HEIGHT);
+		bufferGraphics = offscreen.getGraphics();
 	}
 	
 	public void paint(Graphics gg) {
 		//Better graphics
-		Graphics2D g = (Graphics2D) gg;
+		Graphics2D g = (Graphics2D) bufferGraphics;
 		
 		//Clear the scene
 		g.setBackground(Color.lightGray);
@@ -150,18 +157,13 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 						g.fillPolygon(new int[]{c*GRID_UNIT + GRID_UNIT/2, c*GRID_UNIT + GRID_UNIT, c*GRID_UNIT + GRID_UNIT }, new int[]{r*GRID_UNIT, r*GRID_UNIT, r*GRID_UNIT+GRID_UNIT/2}, 3);
 						break;
 
-					// case 5:			// Ambiguous
-					// 	float cornersAverageCase5 = (topLeft + topRight + bottomRight + bottomLeft)/4.0f;
-					// 	if (cornersAverageCase5 >= THRESHHOLD) {
-					// 		g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
-					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
-					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-					// 	} else {	// Case 10
-					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
-					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
-					// 		g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-					// 	}
-					// 	break;
+					case 5:			// Ambiguous
+						if (values[r][c] >= THRESHHOLD) {
+							g.fillPolygon(new int[]{c*GRID_UNIT, c*GRID_UNIT, c*GRID_UNIT + GRID_UNIT/4, c*GRID_UNIT + GRID_UNIT, c*GRID_UNIT + GRID_UNIT, c*GRID_UNIT + GRID_UNIT/4}, new int[]{r*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT}, 6);
+						} else {	// Case 10
+							g.fillPolygon(new int[]{c*GRID_UNIT, c*GRID_UNIT, c*GRID_UNIT + GRID_UNIT/4, c*GRID_UNIT + GRID_UNIT, c*GRID_UNIT + GRID_UNIT, c*GRID_UNIT + GRID_UNIT/4}, new int[]{r*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT+ GRID_UNIT, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT, r*GRID_UNIT}, 6);
+						}
+						break;
 
 					case 6:
 						g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
@@ -179,18 +181,13 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 						g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT);
 						break;
 
-					// case 10: 		// Ambiguous
-					// 	float cornersAverageCase10 = (topLeft + topRight + bottomRight + bottomLeft)/4.0f;
-					// 	if (cornersAverageCase10 >= THRESHHOLD) {
-					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
-					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
-					// 		g.fillRect(c*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-					// 	} else {	// Case 5
-					// 		g.fillRect(c*GRID_UNIT, r*GRID_UNIT, GRID_UNIT/2, GRID_UNIT/2);
-					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT/4, GRID_UNIT/2, GRID_UNIT/2);		
-					// 		g.fillRect(c*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT + GRID_UNIT/2, GRID_UNIT/2, GRID_UNIT/2);
-					// 	}
-					// 	break;
+					case 10: 		// Ambiguous
+						if (values[r][c] >= THRESHHOLD) {
+							g.fillPolygon(new int[]{c*GRID_UNIT, c*GRID_UNIT, c*GRID_UNIT + GRID_UNIT/4, c*GRID_UNIT + GRID_UNIT, c*GRID_UNIT + GRID_UNIT, c*GRID_UNIT + GRID_UNIT/4}, new int[]{r*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT+ GRID_UNIT, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT, r*GRID_UNIT}, 6);
+						} else {	// Case 5
+							g.fillPolygon(new int[]{c*GRID_UNIT, c*GRID_UNIT, c*GRID_UNIT + GRID_UNIT/4, c*GRID_UNIT + GRID_UNIT, c*GRID_UNIT + GRID_UNIT, c*GRID_UNIT + GRID_UNIT/4}, new int[]{r*GRID_UNIT, r*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT/4, r*GRID_UNIT}, 6);
+						}
+						break;
 
 					case 11:
 						g.fillPolygon(new int[]{c*GRID_UNIT, c*GRID_UNIT, c*GRID_UNIT+GRID_UNIT, c*GRID_UNIT+GRID_UNIT, c*GRID_UNIT+GRID_UNIT/2 }, new int[]{r*GRID_UNIT, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT, r*GRID_UNIT + GRID_UNIT/2, r*GRID_UNIT }, 5);
@@ -300,8 +297,10 @@ public class TheApplet extends JApplet implements MouseListener, Runnable {
 		// 	}
 		// }
 
-		//g.fillRect(0, GRID_HEIGHT*GRID_UNIT, GRID_WIDTH*GRID_UNIT, GRID_UNIT*BUFFER_DEPTH);
+		g.fillRect(0, GRID_HEIGHT*GRID_UNIT, GRID_WIDTH*GRID_UNIT, GRID_UNIT*BUFFER_DEPTH);
 		//Marching Squares
+
+		gg.drawImage(offscreen,0,0,this);
 	}
 	
 	public void update(float dt) {
